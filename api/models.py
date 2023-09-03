@@ -51,6 +51,9 @@ class TeacherProfile(models.Model):
     # Example:
     qualifications = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
     
 
 class Course(models.Model):
@@ -75,7 +78,7 @@ class Section(models.Model):
 class Video(models.Model):
     title = models.CharField(max_length=255)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='videos')
-    video_url = models.URLField()  # You can store the video URL here.
+    video_url = models.CharField(max_length=500)  # You can store the video URL here.
     # Add other video-related fields here.
 
     def __str__(self):

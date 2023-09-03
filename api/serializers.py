@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
-from .models import Course, CustomUser
+from .models import Course, CustomUser, Section, TeacherProfile, Video
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -35,8 +35,35 @@ class UserDataSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('email', 'first_name', 'last_name')  # Include other user data fields as needed
 
+
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('title', 'video_url')  # Include other video-related fields as needed
+
+class SectionSerializer(serializers.ModelSerializer):
+    videos = VideoSerializer(many=True)  # Include videos within the section serializer
+
+    class Meta:
+        model = Section
+        fields = ('title', 'videos')  # Include other section-related fields as needed
+
+
+
+class TeacherProfileSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TeacherProfile
+        fields = ('id', 'qualifications', 'full_name')
+
+    def get_full_name(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}"
+
 class CourseSerializer(serializers.ModelSerializer):
+    teacher = TeacherProfileSerializer()
+    sections = SectionSerializer(many=True) 
     class Meta:
         model = Course
-        fields = ('id', 'category', 'title', 'description', 'teacher')
+        fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')
 
