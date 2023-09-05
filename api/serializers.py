@@ -33,7 +33,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('email', 'first_name', 'last_name')  # Include other user data fields as needed
+        fields = ('id', 'email', 'first_name', 'last_name')  # Include other user data fields as needed
 
 
 class VideoSerializer(serializers.ModelSerializer):
@@ -67,3 +67,18 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')
 
+class CourseCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['category', 'title', 'description', 'teacher']
+        read_only_fields = ['teacher']
+
+    def create(self, validated_data):
+        # You can add custom logic here if needed before creating the course.
+        return Course.objects.create(**validated_data)
+    
+class SectionAddSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Section
+        fields = ('title', 'course')  # Include other section-related fields as needed

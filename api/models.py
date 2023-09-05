@@ -49,7 +49,7 @@ class TeacherProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     # Add fields specific to teachers here, e.g., qualifications, etc.
     # Example:
-    qualifications = models.CharField(max_length=255)
+    qualifications = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
