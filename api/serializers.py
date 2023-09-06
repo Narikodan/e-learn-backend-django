@@ -46,7 +46,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        fields = ('title', 'videos')  # Include other section-related fields as needed
+        fields = ('id', 'title', 'videos')  # Include other section-related fields as needed
 
 
 
@@ -82,3 +82,8 @@ class SectionAddSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = ('title', 'course')  # Include other section-related fields as needed
+
+class VideoAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ['title', 'section', 'video_url']

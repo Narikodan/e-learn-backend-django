@@ -1,7 +1,7 @@
 from . import views
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import CreateCourseView, SectionCreateView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet
+from .views import CreateCourseView, SectionCreateView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet, UserSectionsViewSet, VideoCreateView
 from rest_framework.routers import DefaultRouter
 
 app_name = 'api'
@@ -20,6 +20,8 @@ urlpatterns = [
     path('create-course/', CreateCourseView.as_view(), name='create-course'),
     path('create-section/', SectionCreateView.as_view(), name='create-section'),
     path('user-courses/', UserCoursesViewSet.as_view({'get': 'list'}), name='user-courses'),
+    path('create-video/', VideoCreateView.as_view(), name='create-video'),
+    path('user-sections/', UserSectionsViewSet.as_view({'get': 'list'}), name='user-sections'),
 
     
 ]

@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
-from .models import Course, CustomUser, Section, TeacherProfile
-from .serializers import CourseCreationSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer
+from .models import Course, CustomUser, Section, TeacherProfile, Video
+from .serializers import CourseCreationSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -103,3 +103,30 @@ class UserCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Course.objects.filter(teacher__user=user)
+    
+
+class VideoCreateView(generics.CreateAPIView):
+    queryset = Video.objects.all()
+    serializer_class = VideoAddSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Filter sections by the user creating the video.
+        user = self.request.user
+        return Section.objects.filter(course__teacher__user=user)
+
+    def perform_create(self, serializer):
+        # Automatically set the section to the selected section.
+        user = self.request.user
+        selected_section_id = self.request.data.get('section')
+        section = Section.objects.get(id=selected_section_id, course__teacher__user=user)
+        serializer.save(section=section)
+
+class UserSectionsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Section.objects.filter(course__teacher__user=user)
