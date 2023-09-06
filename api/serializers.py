@@ -87,3 +87,27 @@ class VideoAddSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['title', 'section', 'video_url']
+
+
+
+class UserCoursesListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ('id', 'category', 'title', 'description')
+
+
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('title', 'video_url')
+
+class SectionSerializer(serializers.ModelSerializer):
+    videos = VideoSerializer(many=True)
+
+    class Meta:
+        model = Section
+        fields = ('id', 'title', 'videos')
+
+class CourseDetailSerializer(serializers.Serializer):
+    sections = SectionSerializer(many=True)
+

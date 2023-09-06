@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Course, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer
+from .serializers import CourseCreationSerializer, CourseDetailSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -130,3 +130,17 @@ class UserSectionsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Section.objects.filter(course__teacher__user=user)
+    
+class UserCoursesListView(generics.ListAPIView):
+    serializer_class = UserCoursesListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user  # Get the current user
+        return Course.objects.filter(teacher__user=user)
+    
+class CourseDetailView(generics.RetrieveAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'  # Use 'id' as the lookup field for the course ID
