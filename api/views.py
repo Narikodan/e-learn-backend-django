@@ -8,7 +8,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework import generics
+from rest_framework import permissions
+from .models import Course, Section, Video
+from rest_framework import generics, permissions
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+
 
 
 
@@ -49,17 +56,7 @@ def courses_by_category(request):
     else:
         return JsonResponse({'error': 'Category parameter is missing'}, status=400)
     
-from rest_framework import generics
-from rest_framework import permissions
-from .models import Course
-from .serializers import CourseSerializer
 
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-
-from .models import Course
-from .serializers import CourseCreationSerializer
 
 class CreateCourseView(generics.CreateAPIView):
     queryset = Course.objects.all()
@@ -148,6 +145,7 @@ class CourseDetailView(generics.RetrieveAPIView):
 
 class CourseUpdateView(RetrieveUpdateAPIView):
     queryset = Course.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseUpdateSerializer
 
 class SectionUpdateView(RetrieveUpdateAPIView):
@@ -157,3 +155,38 @@ class SectionUpdateView(RetrieveUpdateAPIView):
 class VideoUpdateView(RetrieveUpdateAPIView):
     queryset = Video.objects.all()
     serializer_class = VideoUpdateSerializer
+
+
+
+
+class CourseDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, course_id):
+        course = get_object_or_404(Course, pk=course_id)
+
+        if request.user == course.teacher.user:
+            course.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+class SectionDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, section_id):
+        section = get_object_or_404(Section, pk=section_id)
+
+        # Add any additional permission checks here if needed
+        section.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class VideoDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, video_id):
+        video = get_object_or_404(Video, pk=video_id)
+
+        # Add any additional permission checks here if needed
+        video.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -27,6 +27,9 @@ urlpatterns = [
     path('update-course/<int:pk>/', views.CourseUpdateView.as_view(), name='update-course'),
     path('update-section/<int:pk>/', views.SectionUpdateView.as_view(), name='update-section'),
     path('update-video/<int:pk>/', views.VideoUpdateView.as_view(), name='update-video'),
+    path('courses/<int:course_id>/delete/', views.CourseDeleteView.as_view(), name='delete_course'),
+    path('sections/<int:section_id>/delete/', views.SectionDeleteView.as_view(), name='delete_section'),
+    path('videos/<int:video_id>/delete/', views.VideoDeleteView.as_view(), name='delete_video'),
 
     
 ]
