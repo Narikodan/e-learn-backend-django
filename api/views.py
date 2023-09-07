@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from .models import Course, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer
+from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -149,3 +149,7 @@ class CourseDetailView(generics.RetrieveAPIView):
 class CourseUpdateView(RetrieveUpdateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseUpdateSerializer
+
+class SectionUpdateView(RetrieveUpdateAPIView):
+    queryset = Section.objects.all()
+    serializer_class = SectionUpdateSerializer

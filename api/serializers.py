@@ -117,4 +117,9 @@ class CourseUpdateSerializer(serializers.ModelSerializer):
         model = Course
         fields = ['category', 'title', 'description']
 
+class SectionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ['title']
+
 
