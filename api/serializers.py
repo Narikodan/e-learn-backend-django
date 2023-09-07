@@ -111,3 +111,10 @@ class SectionSerializer(serializers.ModelSerializer):
 class CourseDetailSerializer(serializers.Serializer):
     sections = SectionSerializer(many=True)
 
+
+class CourseUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['category', 'title', 'description']
+
+

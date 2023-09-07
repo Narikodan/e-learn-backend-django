@@ -24,6 +24,7 @@ urlpatterns = [
     path('user-sections/', UserSectionsViewSet.as_view({'get': 'list'}), name='user-sections'),
     path('user-courses/', UserCoursesListView.as_view(), name='user-courses-list'),
     path('course-detail/<int:id>/', CourseDetailView.as_view(), name='course-detail'),
+    path('update-course/<int:pk>/', views.CourseUpdateView.as_view(), name='update-course'),
 
     
 ]
