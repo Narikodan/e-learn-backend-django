@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from .models import Course, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
+from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -190,3 +190,21 @@ class VideoDeleteView(APIView):
         # Add any additional permission checks here if needed
         video.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+from rest_framework import generics, filters
+from django.db.models import Q
+
+class CourseSearchAPIView(generics.ListAPIView):
+    serializer_class = SearchResultsSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description', 'sections__title', 'sections__videos__title']
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')  # Get the search keyword from the query parameter
+        return Course.objects.filter(
+            Q(title__icontains=query) |  # Search in the course title
+            Q(description__icontains=query) |  # Search in the course description
+            Q(sections__title__icontains=query) |  # Search in section titles
+            Q(sections__videos__title__icontains=query)  # Search in video titles within sections
+        ).distinct()

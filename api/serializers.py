@@ -128,4 +128,12 @@ class VideoUpdateSerializer(serializers.ModelSerializer):
         fields = ['title', 'video_url']
 
 
+class SearchResultsSerializer(serializers.ModelSerializer):
+    sections = SectionSerializer(many=True)  # Include sections within the search results
+    class Meta:
+        model = Course
+        fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')
+
+
+
 
