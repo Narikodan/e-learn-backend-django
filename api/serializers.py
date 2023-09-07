@@ -39,7 +39,7 @@ class UserDataSerializer(serializers.ModelSerializer):
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = ('title', 'video_url')  # Include other video-related fields as needed
+        fields = ('id','title', 'video_url')  # Include other video-related fields as needed
 
 class SectionSerializer(serializers.ModelSerializer):
     videos = VideoSerializer(many=True)  # Include videos within the section serializer
@@ -121,5 +121,11 @@ class SectionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = ['title']
+
+class VideoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ['title', 'video_url']
+
 
 

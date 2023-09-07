@@ -26,6 +26,7 @@ urlpatterns = [
     path('course-detail/<int:id>/', CourseDetailView.as_view(), name='course-detail'),
     path('update-course/<int:pk>/', views.CourseUpdateView.as_view(), name='update-course'),
     path('update-section/<int:pk>/', views.SectionUpdateView.as_view(), name='update-section'),
+    path('update-video/<int:pk>/', views.VideoUpdateView.as_view(), name='update-video'),
 
     
 ]
