@@ -31,6 +31,8 @@ urlpatterns = [
     path('sections/<int:section_id>/delete/', views.SectionDeleteView.as_view(), name='delete_section'),
     path('videos/<int:video_id>/delete/', views.VideoDeleteView.as_view(), name='delete_video'),
     path('search/', views.CourseSearchAPIView.as_view(), name='course-search'),
+    path('enroll-course/', views.CourseEnrollmentView.as_view(), name='enroll-course'),
+    path('enrolled-courses/', views.EnrolledCoursesView.as_view(), name='enrolled-courses'),
 
     
 ]

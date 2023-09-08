@@ -130,6 +130,19 @@ class VideoUpdateSerializer(serializers.ModelSerializer):
 
 class SearchResultsSerializer(serializers.ModelSerializer):
     sections = SectionSerializer(many=True)  # Include sections within the search results
+    teacher = TeacherProfileSerializer()
+    class Meta:
+        model = Course
+        fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')
+
+
+
+class CourseEnrollmentSerializer(serializers.Serializer):
+    course_id = serializers.IntegerField()
+
+class EnrolledCourseSerializer(serializers.ModelSerializer):
+    sections = SectionSerializer(many=True)  # Include sections within the search results
+    teacher = TeacherProfileSerializer()
     class Meta:
         model = Course
         fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')

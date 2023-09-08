@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
-from .models import Course, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
+from .models import Course, CourseEnrollment, CustomUser, Section, TeacherProfile, Video
+from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -208,3 +208,39 @@ class CourseSearchAPIView(generics.ListAPIView):
             Q(sections__title__icontains=query) |  # Search in section titles
             Q(sections__videos__title__icontains=query)  # Search in video titles within sections
         ).distinct()
+    
+
+
+class CourseEnrollmentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = CourseEnrollmentSerializer(data=request.data)
+        if serializer.is_valid():
+            course_id = serializer.validated_data['course_id']
+            try:
+                course = Course.objects.get(pk=course_id)
+            except Course.DoesNotExist:
+                return Response({'message': 'Course not found'})
+
+            # Check if the user is already enrolled in the course
+            if CourseEnrollment.objects.filter(student=request.user, course=course).exists():
+                return Response({'message': 'already enrolled'})
+            else:
+
+                # Enroll the user in the course
+                enrollment = CourseEnrollment(student=request.user, course=course)
+                enrollment.save()
+
+                return Response({'message': 'Enrollment successful'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class EnrolledCoursesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        enrolled_courses = CourseEnrollment.objects.filter(student=request.user).values_list('course', flat=True)
+        courses = Course.objects.filter(pk__in=enrolled_courses)
+        serializer = EnrolledCourseSerializer(courses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
