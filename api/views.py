@@ -1,8 +1,9 @@
+from base64 import urlsafe_b64decode
 from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from .models import Course, CourseEnrollment, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, CourseDetailSerializer, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
+from .serializers import CourseCreationSerializer, PasswordResetRequest, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -14,6 +15,13 @@ from .models import Course, Section, Video
 from rest_framework import generics, permissions
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework import generics, filters
+from django.db.models import Q
+from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.generics import UpdateAPIView
+from rest_framework import status
+from rest_framework.response import Response
 
 
 
@@ -192,8 +200,7 @@ class VideoDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-from rest_framework import generics, filters
-from django.db.models import Q
+
 
 class CourseSearchAPIView(generics.ListAPIView):
     serializer_class = SearchResultsSerializer
@@ -243,4 +250,59 @@ class EnrolledCoursesView(APIView):
         courses = Course.objects.filter(pk__in=enrolled_courses)
         serializer = EnrolledCourseSerializer(courses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+import secrets
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser, PasswordResetRequest
+from .serializers import PasswordResetRequestSerializer, PasswordResetSerializer
+
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Generate a secure token for the password reset
+        token = secrets.token_urlsafe(32)  # Generate a 64-character random URL-safe token
+
+        # Send a password reset email to the user with the token
+        token_url = f'/password-reset?token={token}'  # Adjust the URL as needed
+        mail_subject = 'Password Reset for Your Account'
+        message = f'Use the following link to reset your password: {token_url}'
+        send_mail(mail_subject, message, 'elearningknoweldgehub@gmail.com', [user.email])
+
+        # Create a PasswordResetRequest entry in the database
+        PasswordResetRequest.objects.create(user=user, token=token)
+
+        return Response({'message': 'Password reset email sent successfully'})
+
+class PasswordResetView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+
+        # Find the PasswordResetRequest entry by token
+        try:
+            reset_request = PasswordResetRequest.objects.get(token=token)
+            user = reset_request.user
+        except PasswordResetRequest.DoesNotExist:
+            return Response({'message': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the user's password
+        user.set_password(new_password)
+        user.save()
+
+        # Delete the used reset request
+        reset_request.delete()
+
+        return Response({'message': 'Password reset successfully'})
+
+
+
 

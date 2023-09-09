@@ -148,3 +148,18 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',  # Add this line to enable search filtering
     ),
 }
+
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# Your Gmail email address and password (use an app password or enable less secure apps)
+EMAIL_HOST_USER = 'elearningknoweldgehub@gmail.com'
+EMAIL_HOST_PASSWORD = 'bdtusodnnyuixzlw'
+
+# Set the 'from' email address for sending emails
+DEFAULT_FROM_EMAIL = 'elearningknoweldgehub@gmail.com'

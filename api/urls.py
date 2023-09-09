@@ -1,7 +1,7 @@
 from . import views
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import CourseDetailView, CreateCourseView, SectionCreateView, UserCoursesListView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet, UserSectionsViewSet, VideoCreateView
+from .views import CourseDetailView, CreateCourseView, PasswordResetRequestView, PasswordResetView, SectionCreateView, UserCoursesListView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet, UserSectionsViewSet, VideoCreateView
 from rest_framework.routers import DefaultRouter
 
 app_name = 'api'
@@ -33,6 +33,9 @@ urlpatterns = [
     path('search/', views.CourseSearchAPIView.as_view(), name='course-search'),
     path('enroll-course/', views.CourseEnrollmentView.as_view(), name='enroll-course'),
     path('enrolled-courses/', views.EnrolledCoursesView.as_view(), name='enrolled-courses'),
+    path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
+
 
     
 ]

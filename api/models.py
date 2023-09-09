@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 
 
@@ -94,3 +96,11 @@ class CourseEnrollment(models.Model):
 
     def __str__(self):
         return f"{self.student} enrolled in {self.course}"
+
+class PasswordResetRequest(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    token = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Password reset request for {self.user.email}"

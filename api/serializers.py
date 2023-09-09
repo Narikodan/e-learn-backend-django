@@ -147,6 +147,34 @@ class EnrolledCourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = ('id', 'category', 'title', 'description', 'teacher', 'sections')
 
+# serializers.py
+
+from rest_framework import serializers
+from .models import PasswordResetRequest
+
+class PasswordResetRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PasswordResetRequest
+        fields = ['user', 'token']
+        read_only_fields = ['token']
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        # Generate a unique token (you can use Django's built-in token generator)
+        token = ...  # Generate a token here
+        reset_request = PasswordResetRequest.objects.create(user=user, token=token)
+        return reset_request
+    
+class PasswordResetSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=100)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_token(self, value):
+        # Check if the token is valid (e.g., not expired and exists in the database)
+        # You can add your validation logic here
+        return value
+
+
 
 
 
