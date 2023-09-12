@@ -2,8 +2,8 @@ from base64 import urlsafe_b64decode
 from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
-from .models import Course, CourseEnrollment, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, PasswordResetRequest, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
+from .models import Course, CourseEnrollment, CustomUser, Message, Section, TeacherProfile, Video
+from .serializers import CourseCreationSerializer, MessageSerializer, PasswordResetRequest, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -304,5 +304,46 @@ class PasswordResetView(APIView):
         return Response({'message': 'Password reset successfully'})
 
 
+
+
+
+
+
+class SendMessageView(generics.CreateAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Retrieve sender (student) from the current user
+        sender = self.request.user
+
+        # Retrieve receiver (teacher) based on teacherId
+        teacher_id = self.request.data.get('teacherId')
+        try:
+            receiver = TeacherProfile.objects.get(id=teacher_id)
+        except TeacherProfile.DoesNotExist:
+            return Response({'message': 'Teacher not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retrieve course based on courseId
+        course_id = self.request.data.get('courseId')
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({'message': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Set sender, receiver, and course in the serializer before saving
+        serializer.save(sender=sender, receiver=receiver, course=course)
+
+        # Return a success response
+        return Response({'message': 'Message sent successfully'}, status=status.HTTP_201_CREATED)
+
+class InboxView(generics.ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Retrieve messages for the current user (teacher)
+        return Message.objects.filter(receiver=self.request.user.teacherprofile)
 
 

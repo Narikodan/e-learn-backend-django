@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
-from .models import Course, CustomUser, Section, TeacherProfile, Video
+from .models import Course, CustomUser, Message, Section, TeacherProfile, Video
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -173,6 +173,14 @@ class PasswordResetSerializer(serializers.Serializer):
         # Check if the token is valid (e.g., not expired and exists in the database)
         # You can add your validation logic here
         return value
+    
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['subject', 'content']
+
+
 
 
 
