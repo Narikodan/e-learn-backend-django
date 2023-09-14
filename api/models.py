@@ -104,6 +104,7 @@ class PasswordResetRequest(models.Model):
 
     def __str__(self):
         return f"Password reset request for {self.user.email}"
+<<<<<<< HEAD
 
 class ChatRoom(models.Model):
     users = models.ManyToManyField(CustomUser, related_name='chat_rooms')
@@ -121,3 +122,14 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+=======
+ 
+
+class Message(models.Model):
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, related_name='received_messages')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=255)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+>>>>>>> 78728080fa113e75908e867dbecb0b029f6c622d

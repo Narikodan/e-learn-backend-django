@@ -1,7 +1,7 @@
 from . import views
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import CourseDetailView, CreateCourseView, PasswordResetRequestView, PasswordResetView, SectionCreateView, UserCoursesListView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet, UserSectionsViewSet, VideoCreateView
+from .views import CourseDetailView, CreateCourseView, InboxView, PasswordResetRequestView, PasswordResetView, SectionCreateView, SendMessageView, UserCoursesListView, UserCoursesViewSet, UserDataView, UserRegistrationView, CustomTokenObtainPairView, CourseCategoryViewSet, UserSectionsViewSet, VideoCreateView
 from rest_framework.routers import DefaultRouter
 
 app_name = 'api'
@@ -35,10 +35,15 @@ urlpatterns = [
     path('enrolled-courses/', views.EnrolledCoursesView.as_view(), name='enrolled-courses'),
     path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
+<<<<<<< HEAD
     path('create-chat-room/', views.ChatRoomCreateView.as_view(), name='create-chat-room'),
     path('chat-rooms/<int:chat_room_id>/messages/', views.MessageListView.as_view(), name='chat-room-messages'),
     path('chat-rooms/<int:chat_room_id>/send-message/', views.MessageCreateView.as_view(), name='send-chat-message'),
     path('chat-rooms/', views.ChatRoomListView.as_view(), name='chat-room-list'),
+=======
+    path('send-message/', SendMessageView.as_view(), name='send-message'),
+    path('inbox/', InboxView.as_view(), name='inbox'),
+>>>>>>> 78728080fa113e75908e867dbecb0b029f6c622d
 
 
     
