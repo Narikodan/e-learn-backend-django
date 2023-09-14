@@ -35,6 +35,10 @@ urlpatterns = [
     path('enrolled-courses/', views.EnrolledCoursesView.as_view(), name='enrolled-courses'),
     path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
+    path('create-chat-room/', views.ChatRoomCreateView.as_view(), name='create-chat-room'),
+    path('chat-rooms/<int:chat_room_id>/messages/', views.MessageListView.as_view(), name='chat-room-messages'),
+    path('chat-rooms/<int:chat_room_id>/send-message/', views.MessageCreateView.as_view(), name='send-chat-message'),
+    path('chat-rooms/', views.ChatRoomListView.as_view(), name='chat-room-list'),
 
 
     

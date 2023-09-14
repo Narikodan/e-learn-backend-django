@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
-from .models import Course, CustomUser, Section, TeacherProfile, Video
+from .models import ChatRoom, Course, CustomUser, Message, Section, TeacherProfile, Video
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -176,5 +176,22 @@ class PasswordResetSerializer(serializers.Serializer):
 
 
 
+class ChatRoomSerializer(serializers.ModelSerializer):
+    users = UserDataSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = ChatRoom
+        fields = ('id', 'users')
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = UserDataSerializer()
+
+    class Meta:
+        model = Message
+        fields = ('id', 'sender', 'chat_room', 'content', 'timestamp')
+
+class MessageCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ('id', 'content', 'timestamp')
 

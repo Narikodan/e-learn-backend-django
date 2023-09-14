@@ -2,8 +2,8 @@ from base64 import urlsafe_b64decode
 from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
-from .models import Course, CourseEnrollment, CustomUser, Section, TeacherProfile, Video
-from .serializers import CourseCreationSerializer, PasswordResetRequest, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
+from .models import ChatRoom, Course, CourseEnrollment, CustomUser, Message, Section, TeacherProfile, Video
+from .serializers import ChatRoomSerializer, CourseCreationSerializer, MessageCreateSerializer, MessageSerializer, PasswordResetRequest, CourseEnrollmentSerializer, CourseUpdateSerializer, CustomTokenObtainPairSerializer, EnrolledCourseSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, SearchResultsSerializer, SectionAddSerializer, SectionSerializer, SectionUpdateSerializer, UserCoursesListSerializer, UserRegistrationSerializer, UserDataSerializer, CourseSerializer, VideoAddSerializer, VideoUpdateSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -304,5 +304,75 @@ class PasswordResetView(APIView):
         return Response({'message': 'Password reset successfully'})
 
 
+class ChatRoomCreateView(generics.CreateAPIView):
+    queryset = ChatRoom.objects.all()
+    serializer_class = ChatRoomSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def perform_create(self, serializer):
+        # Get the teacher_id from the request data
+        teacher_id = self.request.data.get('teacher_id')
+
+        try:
+            # Find the TeacherProfile with the specified teacher_id
+            teacher_profile = TeacherProfile.objects.get(id=teacher_id)
+
+            # Retrieve the associated CustomUser
+            target_user = teacher_profile.user
+
+            # Check if a chat room with the same users already exists
+            existing_chat_room = ChatRoom.objects.filter(users=self.request.user).filter(users=target_user).first()
+
+            if existing_chat_room:
+                # Return the existing chat room's data
+                serializer = ChatRoomSerializer(existing_chat_room)
+                return Response({'chat_room': serializer.data, 'message': 'Chat room already exists'},
+                                status=status.HTTP_200_OK)
+
+            # Create the chat room with the current user and target user
+            chat_room = serializer.save()
+            chat_room.users.add(self.request.user, target_user)
+            chat_room.save()
+        
+        except TeacherProfile.DoesNotExist:
+            return Response({'error': 'Teacher profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'CustomUser not found for the teacher'}, status=status.HTTP_404_NOT_FOUND)
+            
+        
+            
+
+
+class MessageListView(generics.ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        chat_room_id = self.kwargs['chat_room_id']
+        chat_room = ChatRoom.objects.get(id=chat_room_id)
+        # Check if the current user is a member of the chat room
+        if self.request.user in chat_room.users.all():
+            return Message.objects.filter(chat_room=chat_room).order_by('timestamp')
+        else:
+            return Message.objects.none()
+
+class MessageCreateView(generics.CreateAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        chat_room_id = self.request.data.get('chat_room_id')
+        chat_room = ChatRoom.objects.get(id=chat_room_id)
+
+        # Set the sender to the authenticated user
+        serializer.save(sender=self.request.user, chat_room=chat_room)
+        
+class ChatRoomListView(generics.ListAPIView):
+    serializer_class = ChatRoomSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Retrieve chat rooms for the current user
+        return ChatRoom.objects.filter(users=self.request.user)
 
